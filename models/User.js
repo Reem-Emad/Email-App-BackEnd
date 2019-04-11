@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const util = require('util');
+
 const saltRounds = 10;
+const secretKey = 'secretkeysecretkey';
+const verifyToken = util.promisify(jwt.verify);
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -42,7 +48,6 @@ const userSchema = new mongoose.Schema({
         required: true
     }
 
-    // autoIndex: true
 
 });
 const hashPassword = (password) => {
@@ -53,12 +58,29 @@ userSchema.pre('save', async function () {
     if (currentUser.isNew) {
         currentUser.password = await hashPassword(currentUser.password);
     }
-
-    debugger;
-
+});
+userSchema.pre('findOneAndUpdate', async function () {
+    const currentUser = this;
+    const updates = currentUser._update
+    const { password } = updates;
+    if (password) {
+        currentUser._update.password = await hashPassword(password);
+    }
 
 });
-
+userSchema.method('verifyPassword', function (password) {
+    const currentUser = this;
+    return bcrypt.compare(password, currentUser.password)
+});
+userSchema.method('generateToken', function () {
+    const currentUser = this;
+    const token = jwt.sign(currentUser.id, secretKey);
+    return token;
+})
+userSchema.static('verifyToken', async function (token) {
+    const decoded = await verifyToken(token, secretKey);
+    return this.findById(decoded);
+})
 const userModel = mongoose.model('User', userSchema);
 
 module.exports = userModel;
