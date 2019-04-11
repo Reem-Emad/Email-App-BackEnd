@@ -1,5 +1,6 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const createError = require('http-errors');
 const userModel = require('./../models/User');
 const msgModel = require('./../models/Message');
 
@@ -7,6 +8,7 @@ const msgModel = require('./../models/Message');
 router.get('/', async function (req, res, next) {
   await userModel.find({}, function (err, users) {
     if (err) return res.send(err)
+    // if (err) next(createError(500, err));
     res.send(users);
   }).exec();
 
@@ -14,9 +16,10 @@ router.get('/', async function (req, res, next) {
 
 router.post('/add', async function (req, res, next) {
 
-  await userModel.create(req.body, function (err) {
-    if (err) return res.send(err);
-    res.send('done');
+  await userModel.create(req.body, function (err, user) {
+    debugger;
+    if (err) return res.send(err.message);
+    res.send(user);
   });
 });
 
@@ -28,6 +31,23 @@ router.post('/:id', async function (req, res, next) {
   })
 })
 
+
+router.patch('/:id', async function (req, res) {
+  const id = req.params.id;
+  await userModel.findByIdAndUpdate(id, req.body, { new: true }, (err, user) => {
+    if (err) return res.send(err);
+    // user = req.body;
+    res.send(user);
+  })
+})
+
+router.delete('/:id', async function (req, res) {
+  const id = req.params.id;
+  await userModel.findByIdAndDelete(id, (err, result) => {
+    if (err) return res.send(err);
+    res.send(result);
+  })
+})
 
 router.post('/:id/from', async function (req, res, next) {
   const id = req.params.id;

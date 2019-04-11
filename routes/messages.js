@@ -42,9 +42,9 @@ router.post('/user/:id/from', async function (req, res, next) {
 })
 router.patch('/:id', async function (req, res) {
     const id = req.params.id;
-    await msgModel.findById(id, (err, msg) => {
+    await msgModel.findByIdAndUpdate(id, req.body, { new: true }, (err, msg) => {
         if (err) return res.send(err);
-        msg = req.body;
+        // msg = req.body;
         res.send(msg);
     })
 })
