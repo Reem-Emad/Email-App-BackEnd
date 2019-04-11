@@ -17,6 +17,7 @@ router.get('/', async function (req, res, next) {
 router.post('/add', async function (req, res, next) {
 
   await userModel.create(req.body, function (err, user) {
+
     debugger;
     if (err) return res.send(err.message);
     res.send(user);

@@ -40,20 +40,20 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         enum: ['egypt', 'usa', 'germany'],
         required: true
-    },
+    }
 
     // autoIndex: true
 
 });
 const hashPassword = (password) => {
-    bcrypt.hash(password, saltRounds);
+    return bcrypt.hash(password, saltRounds);
 }
 userSchema.pre('save', async function () {
     const currentUser = this;
     if (currentUser.isNew) {
         currentUser.password = await hashPassword(currentUser.password);
     }
-    console.log(currentUser);
+
     debugger;
 
 
