@@ -3,7 +3,7 @@ var router = express.Router();
 const msgModel = require('./../models/Message');
 const userModel = require('./../models/User');
 
-
+//get all mails
 router.get('/', async function (req, res, next) {
 
     await msgModel.find({}, function (err, msgs) {
@@ -11,7 +11,7 @@ router.get('/', async function (req, res, next) {
         res.send(msgs);
     }).exec();
 });
-
+//add new mail
 router.post('/add', async function (req, res, next) {
 
     await msgModel.create(req.body, function (err) {
@@ -19,6 +19,7 @@ router.post('/add', async function (req, res, next) {
         res.send('done');
     });
 });
+//get mail by id
 router.post('/:id', async function (req, res, next) {
     const id = req.params.id;
     await msgModel.findById(id, (err, msg) => {
@@ -26,20 +27,35 @@ router.post('/:id', async function (req, res, next) {
         res.send(msg);
     })
 })
+//get user's mails
 router.post('/user/:id/to', async function (req, res, next) {
-    const id = req.params.id;
-    await msgModel.find({ to: id }, (err, msg) => {
+    // debugger;
+    const userid = req.params.id;
+    const user = [];
+    await userModel.findById(userid, (err, u) => {
+        user.push(u);
+    })
+    await msgModel.find({ to: user[0].email }, (err, msg) => {
         if (err) return res.send(err);
         res.send(msg);
     })
+
+
 })
+//get sent user's mails
 router.post('/user/:id/from', async function (req, res, next) {
-    const id = req.params.id;
-    await msgModel.find({ from: id }, (err, msg) => {
+
+    const userid = req.params.id;
+    const user = [];
+    await userModel.findById(userid, (err, u) => {
+        user.push(u);
+    })
+    await msgModel.find({ from: user[0].email }, (err, msg) => {
         if (err) return res.send(err);
         res.send(msg);
     })
 })
+//update mail
 router.patch('/:id', async function (req, res) {
     const id = req.params.id;
     await msgModel.findByIdAndUpdate(id, req.body, { new: true }, (err, msg) => {
@@ -48,7 +64,7 @@ router.patch('/:id', async function (req, res) {
         res.send(msg);
     })
 })
-
+//delete mail
 router.delete('/:id', async function (req, res) {
     const id = req.params.id;
     await msgModel.findByIdAndDelete(id, (err, result) => {

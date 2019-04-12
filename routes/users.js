@@ -9,8 +9,6 @@ const authMiddleware = require('../middlewares/Authentication');
 router.post('/add', async function (req, res, next) {
 
   await userModel.create(req.body, function (err, user) {
-
-    debugger;
     if (err) return next(createError(400));
     res.send(user);
   });
@@ -68,10 +66,10 @@ router.delete('/profile/delete', async function (req, res) {
     res.send(result);
   })
 })
-//get his sent mails
+//get sent mails
 router.get('/profile/sent', async function (req, res, next) {
-  const id = req.user.id;
-  await msgModel.find({ from: id }, (err, msg) => {
+  const email = req.user.email;
+  await msgModel.find({ from: email }, (err, msg) => {
     if (err) return next(createError(404));
     res.send(msg);
   })
@@ -79,8 +77,8 @@ router.get('/profile/sent', async function (req, res, next) {
 
 //get his  mails
 router.get('/profile/inbox', async function (req, res, next) {
-  const id = req.user.id;
-  await msgModel.find({ to: id }, (err, msg) => {
+  const email = req.user.email;
+  await msgModel.find({ to: email }, (err, msg) => {
     if (err) return next(createError(404));
     res.send(msg);
   })
