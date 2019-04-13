@@ -8,7 +8,7 @@ const authMiddleware = require('../middlewares/Authentication');
 
 router.post('/add', async function (req, res, next) {
   await userModel.create(req.body, function (err, user) {
-    if (err) return next(createError(400), err.message);
+    if (err) return next(createError(400, err.message));
     res.send(user);
   });
 });
@@ -18,11 +18,11 @@ router.post('/login', async function (req, res, next) {
   const { email, password } = req.body;
   const currentUser = await userModel.findOne({ email });
   if (!currentUser)
-    return next(createError(401), err.message);
+    return next(createError(401, err.message));
 
   const passwordMatch = await currentUser.verifyPassword(password);
   if (!passwordMatch)
-    return next(createError(401))
+    return next(createError(401, err.message));
   const token = currentUser.generateToken();
   res.send({
     profile: currentUser,
@@ -35,7 +35,7 @@ router.use(authMiddleware);
 /* GET users listing. */
 router.get('/', async function (req, res, next) {
   await userModel.find({}, function (err, users) {
-    if (err) next(createError(500), err.message)
+    if (err) next(createError(500, err.message));
     // if (err) next(createError(500, err));
     res.send(users);
   }).exec();
@@ -50,7 +50,7 @@ router.get('/profile', async function (req, res, next) {
 //update his profile
 router.patch('/profile/update', async function (req, res) {
   await userModel.findByIdAndUpdate(req.user.id, req.body, { new: true }, (err, user) => {
-    if (err) return next(createError(404), err.message);
+    if (err) return next(createError(404, err.message));
 
     res.send(user);
 
@@ -61,7 +61,7 @@ router.patch('/profile/update', async function (req, res) {
 router.delete('/profile/delete', async function (req, res) {
   const id = req.user.id;
   await userModel.findByIdAndDelete(id, (err, result) => {
-    if (err) return next(createError(404), err.message);
+    if (err) return next(createError(404, err.message));
     res.send(result);
   })
 })
@@ -69,7 +69,7 @@ router.delete('/profile/delete', async function (req, res) {
 router.get('/profile/sent', async function (req, res, next) {
   const email = req.user.email;
   await msgModel.find({ from: email }, (err, msg) => {
-    if (err) return next(createError(404), err.message);
+    if (err) return next(createError(404, err.message));
     res.send(msg);
   })
 })
@@ -78,7 +78,7 @@ router.get('/profile/sent', async function (req, res, next) {
 router.get('/profile/inbox', async function (req, res, next) {
   const email = req.user.email;
   await msgModel.find({ to: email }, (err, msg) => {
-    if (err) return next(createError(404), err.message);
+    if (err) return next(createError(404, err.message));
     res.send(msg);
   })
 })
