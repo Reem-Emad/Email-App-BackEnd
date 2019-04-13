@@ -18,11 +18,11 @@ router.post('/login', async function (req, res, next) {
   const { email, password } = req.body;
   const currentUser = await userModel.findOne({ email });
   if (!currentUser)
-    return next(createError(401, err.message));
+    return next(createError(401));
 
   const passwordMatch = await currentUser.verifyPassword(password);
   if (!passwordMatch)
-    return next(createError(401, err.message));
+    return next(createError(401));
   const token = currentUser.generateToken();
   res.send({
     profile: currentUser,

@@ -11,6 +11,6 @@ module.exports = async (req, res, next) => {
         req.user = user;
         next();
     } catch (err) {
-        next(createError(401));
+        next(createError(401, err.message));
     }
 };
