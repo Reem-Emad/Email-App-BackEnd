@@ -7,7 +7,6 @@ const authMiddleware = require('../middlewares/Authentication');
 
 
 router.post('/add', async function (req, res, next) {
-
   await userModel.create(req.body, function (err, user) {
     if (err) return next(createError(400));
     res.send(user);
